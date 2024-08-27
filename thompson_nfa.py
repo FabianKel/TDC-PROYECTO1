@@ -81,8 +81,8 @@ class ThompsonNFA:
         self.dot.edge('', self.start_node)
 
     def plot(self, i):
-        self.dot.render(i, cleanup=True)
-        print(f"AFN guardada como '{i}.png'")
+        self.dot.render(f'AFN{i}', cleanup=True)
+        print(f"AFN guardada como 'AFN{i}.png'")
 
     def simulate(self, input_string):
         def epsilon_closure(states):

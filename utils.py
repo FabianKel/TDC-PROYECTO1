@@ -2,24 +2,11 @@ from nltk.tree import Tree
 from thompson_nfa import ThompsonNFA
 from infix2postfix import infix_to_postfix
 from tree import postfix_to_tree
-
-def postfix_to_tree(postfix):
-    stack = []
-    for char in postfix:
-        if char.isalnum() or char in '.@':
-            stack.append(Tree(char, []))
-        elif char in '*|•':
-            if char == '*':
-                operand = stack.pop()
-                stack.append(Tree('*', [operand]))
-            elif char in '•|':
-                right = stack.pop()
-                left = stack.pop()
-                stack.append(Tree(char, [left, right]))
-    return stack[0]
+from afn_to_afd import AFNtoAFD
 
 def process_file(filename, test_string):
-    afns = []  # Almacena los AFN generados
+    afns = []
+    afds = []
 
     with open(filename, 'r', encoding='utf-8') as file:
         lines = file.readlines()
@@ -33,17 +20,27 @@ def process_file(filename, test_string):
         arbol = postfix_to_tree(postfix)
         arbol.draw()
         
+        # Construir el AFN usando Thompson
         nfa = ThompsonNFA()
         start, end = nfa.build_from_tree(arbol)
         nfa.finalize(start, end)  
         nfa.plot(str(i))
         afns.append(nfa) 
-        
+
+        # Convertir el AFN a un AFD
+        afd = AFNtoAFD(nfa)
+        afd_transitions, afd_states = afd.convert()
+        afds.append(afd)  # Agregar el AFD a la lista
+        afd.print_afd()
+        afd.plot_afd(f'AFD{i}')
+
         print('-' * 50)
         i += 1
 
-    for idx, nfa in enumerate(afns):
-        if nfa.simulate(test_string):
-            print(f"La cadena '{test_string}' SI es aceptada por el AFN {idx + 1}.")
-        else:
-            print(f"La cadena '{test_string}' NO es aceptada por el AFN {idx + 1}.")
+    # Verificar la cadena de prueba tanto en los AFN como en los AFD
+    for idx, (nfa, afd) in enumerate(zip(afns, afds)):
+        nfa_result = nfa.simulate(test_string)
+        afd_result = afd.simulate(test_string)
+        
+        print(f"La cadena '{test_string}' {'SI' if nfa_result else 'NO'} es aceptada por el AFN {idx + 1}")
+        print(f"La cadena '{test_string}' {'SI' if afd_result else 'NO'} es aceptada por el AFN {idx + 1}")
