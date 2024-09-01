@@ -61,6 +61,9 @@ class AFNtoAFD:
     def plot_afd(self, filename):
         dot = Digraph(format='png')
         dot.attr(rankdir='LR')
+        dot.node('', shape='none', width='0', height='0', label='')
+        initial_state_name = self.afd_states[frozenset(self.epsilon_closure({self.nfa.start_node}))]
+        dot.edge('', initial_state_name)
         for closure, state_name in self.afd_states.items():
             shape = 'doublecircle' if self.is_accepting(closure) else 'ellipse'
             dot.node(state_name, state_name, shape=shape)
