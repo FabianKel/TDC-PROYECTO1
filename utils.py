@@ -30,15 +30,13 @@ def process_file(filename, test_string):
 
         # Convertir el AFN a un AFD
         afd = AFNtoAFD(nfa)
-        afd_transitions, afd_states = afd.convert()
-        print(afd_transitions)
-        print(afd_states)
+        afd_transitions, afd_states, afd_accepting_states = afd.convert()
         afds.append(afd)  # Agregar el AFD a la lista
         afd.print_afd()
         afd.plot_afd(f'AFD{i}')
 
         # Minimizar el AFD 
-        minimizer = AFDMinimizer(afd_transitions, afd_states, nfa.accept_node)
+        minimizer = AFDMinimizer(afd_transitions, afd_states, afd_accepting_states)
         minimizer.minimize()
         minimizer.plot_minimized_afd(f'AFD_minimizado{i}')
 

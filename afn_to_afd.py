@@ -7,6 +7,7 @@ class AFNtoAFD:
         self.afd_transitions = defaultdict(dict)
         self.afd_states = {}
         self.state_count = 0
+        self.accepting_states = set()
 
     def epsilon_closure(self, states):
         closure = set(states)
@@ -33,6 +34,9 @@ class AFNtoAFD:
         self.afd_states[start_closure] = f'q{self.state_count}'
         self.state_count += 1
 
+        if self.is_accepting(start_closure):
+            self.accepting_states.add(self.afd_states[start_closure])
+
         queue = deque([start_closure])
         while queue:
             current_closure = queue.popleft()
@@ -48,7 +52,10 @@ class AFNtoAFD:
 
                 self.afd_transitions[self.afd_states[current_closure]][symbol] = self.afd_states[next_closure]
 
-        return self.afd_transitions, self.afd_states
+                if self.is_accepting(next_closure):
+                    self.accepting_states.add(self.afd_states[next_closure])
+
+        return self.afd_transitions, self.afd_states, self.accepting_states
 
     def is_accepting(self, closure):
         return self.nfa.accept_node in closure
@@ -61,9 +68,15 @@ class AFNtoAFD:
     def plot_afd(self, filename):
         dot = Digraph(format='png')
         dot.attr(rankdir='LR')
-        dot.node('', shape='none', width='0', height='0', label='')
+        
+        dot.node('start', label='start', shape='plaintext')
+
+        # Determina el nombre del estado inicial usando la clausura épsilon del nodo de inicio del AFN
         initial_state_name = self.afd_states[frozenset(self.epsilon_closure({self.nfa.start_node}))]
-        dot.edge('', initial_state_name)
+        
+        # Dibuja la flecha desde el nodo invisible al estado inicial con la etiqueta 'start'
+        dot.edge('start', initial_state_name, label='')
+
         for closure, state_name in self.afd_states.items():
             shape = 'doublecircle' if self.is_accepting(closure) else 'ellipse'
             dot.node(state_name, state_name, shape=shape)
@@ -74,6 +87,7 @@ class AFNtoAFD:
 
         dot.render(filename, cleanup=True)
         print(f"AFD guardado como '{filename}.png'")
+
 
     def simulate(self, input_string):
         current_state = None
@@ -94,4 +108,3 @@ class AFNtoAFD:
                 return True
 
         return False
-

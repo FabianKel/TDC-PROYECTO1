@@ -77,8 +77,10 @@ class ThompsonNFA:
         self.add_transition(end, self.accept_node, 'ε')
 
         # Añadir flecha al nodo inicial
-        self.dot.node('', shape='none', width='0', height='0', label='')
-        self.dot.edge('', self.start_node)
+        self.dot.node('start', label='start', shape='plaintext')
+
+        self.dot.edge('start', self.start_node, label='')
+
 
     def plot(self, i):
         self.dot.render(f'AFN{i}', cleanup=True)
