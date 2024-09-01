@@ -3,6 +3,7 @@ from thompson_nfa import ThompsonNFA
 from infix2postfix import infix_to_postfix
 from tree import postfix_to_tree
 from afn_to_afd import AFNtoAFD
+from afd_to_minimized import AFDMinimizer 
 
 def process_file(filename, test_string):
     afns = []
@@ -30,9 +31,16 @@ def process_file(filename, test_string):
         # Convertir el AFN a un AFD
         afd = AFNtoAFD(nfa)
         afd_transitions, afd_states = afd.convert()
+        print(afd_transitions)
+        print(afd_states)
         afds.append(afd)  # Agregar el AFD a la lista
         afd.print_afd()
         afd.plot_afd(f'AFD{i}')
+
+        # Minimizar el AFD 
+        minimizer = AFDMinimizer(afd_transitions, afd_states, nfa.accept_node)
+        minimizer.minimize()
+        minimizer.plot_minimized_afd(f'AFD_minimizado{i}')
 
         print('-' * 50)
         i += 1
@@ -43,4 +51,4 @@ def process_file(filename, test_string):
         afd_result = afd.simulate(test_string)
         
         print(f"La cadena '{test_string}' {'SI' if nfa_result else 'NO'} es aceptada por el AFN {idx + 1}")
-        print(f"La cadena '{test_string}' {'SI' if afd_result else 'NO'} es aceptada por el AFN {idx + 1}")
+        print(f"La cadena '{test_string}' {'SI' if afd_result else 'NO'} es aceptada por el AFD {idx + 1}")
