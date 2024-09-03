@@ -19,7 +19,7 @@ def process_file(filename, test_string):
         postfix = infix_to_postfix(line)
         print(f'Expresion postfix: {postfix}')
         arbol = postfix_to_tree(postfix)
-        arbol.draw()
+        #arbol.draw()
         
         # Construir el AFN usando Thompson
         nfa = ThompsonNFA()
