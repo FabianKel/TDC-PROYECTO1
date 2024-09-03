@@ -1,3 +1,4 @@
+import os
 from nltk.tree import Tree
 from thompson_nfa import ThompsonNFA
 from infix2postfix import infix_to_postfix
@@ -8,6 +9,17 @@ from afd_to_minimized import AFDMinimizer
 def process_file(filename, test_string):
     afns = []
     afds = []
+    minimized_afds = []
+
+    # Crear directorios si no existen
+    afn_directory = "AFNs"
+    afd_directory = "AFDs"
+    
+    if not os.path.exists(afn_directory):
+        os.makedirs(afn_directory)
+    
+    if not os.path.exists(afd_directory):
+        os.makedirs(afd_directory)
 
     with open(filename, 'r', encoding='utf-8') as file:
         lines = file.readlines()
@@ -24,8 +36,10 @@ def process_file(filename, test_string):
         # Construir el AFN usando Thompson
         nfa = ThompsonNFA()
         start, end = nfa.build_from_tree(arbol)
-        nfa.finalize(start, end)  
-        nfa.plot(str(i))
+        nfa.finalize(start, end) 
+        afn_path = os.path.join(afn_directory, f'AFN_{i}')
+        nfa.plot(afn_path)  
+        #nfa.plot(str(i))
         afns.append(nfa) 
 
         # Convertir el AFN a un AFD
@@ -33,12 +47,16 @@ def process_file(filename, test_string):
         afd_transitions, afd_states, afd_accepting_states = afd.convert()
         afds.append(afd)  # Agregar el AFD a la lista
         afd.print_afd()
-        afd.plot_afd(f'AFD{i}')
+        afd_path = os.path.join(afd_directory, f'AFD_{i}')
+        afd.plot_afd(afd_path)
+        #afd.plot_afd(f'AFD{i}')
 
         # Minimizar el AFD 
         minimizer = AFDMinimizer(afd_transitions, afd_states, afd_accepting_states)
         minimizer.minimize()
-        minimizer.plot_minimized_afd(f'AFD_minimizado{i}')
+        minimized_afds.append(minimizer)
+        minimized_afd_path = os.path.join(afd_directory, f'AFD_minimizado_{i}')
+        minimizer.plot_minimized_afd(minimized_afd_path)
 
         print('-' * 50)
         i += 1
