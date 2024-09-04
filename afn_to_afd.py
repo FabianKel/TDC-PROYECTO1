@@ -71,10 +71,8 @@ class AFNtoAFD:
         
         dot.node('start', label='start', shape='plaintext')
 
-        # Determina el nombre del estado inicial usando la clausura épsilon del nodo de inicio del AFN
         initial_state_name = self.afd_states[frozenset(self.epsilon_closure({self.nfa.start_node}))]
         
-        # Dibuja la flecha desde el nodo invisible al estado inicial con la etiqueta 'start'
         dot.edge('start', initial_state_name, label='')
 
         for closure, state_name in self.afd_states.items():

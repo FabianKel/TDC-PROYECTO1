@@ -11,7 +11,6 @@ def process_file(filename, test_string):
     afds = []
     minimized_afds = []
 
-    # Crear directorios si no existen
     afn_directory = "AFNs"
     afd_directory = "AFDs"
     
@@ -65,6 +64,8 @@ def process_file(filename, test_string):
     for idx, (nfa, afd) in enumerate(zip(afns, afds)):
         nfa_result = nfa.simulate(test_string)
         afd_result = afd.simulate(test_string)
+        afd_min_result = minimizer.simulate(test_string)
         
         print(f"La cadena '{test_string}' {'SI' if nfa_result else 'NO'} es aceptada por el AFN {idx + 1}")
         print(f"La cadena '{test_string}' {'SI' if afd_result else 'NO'} es aceptada por el AFD {idx + 1}")
+        print(f"La cadena '{test_string}' {'SI' if afd_result else 'NO'} es aceptada por el AFD Minimizado {idx + 1}")

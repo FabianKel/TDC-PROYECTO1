@@ -76,7 +76,6 @@ class ThompsonNFA:
         self.add_transition(self.start_node, start, 'ε')
         self.add_transition(end, self.accept_node, 'ε')
 
-        # Añadir flecha al nodo inicial
         self.dot.node('start', label='start', shape='plaintext')
 
         self.dot.edge('start', self.start_node, label='')
