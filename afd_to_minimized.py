@@ -90,7 +90,6 @@ class AFDMinimizer:
         for symbol in input_string:
             if symbol in self.afd_transitions[current_state]:
                 current_state = self.afd_transitions[current_state][symbol]
-                ##print(f"Transición: {symbol} --> {current_state}")  
             else:
                 return False  
         return current_state in self.afd_accepting_states

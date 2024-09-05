@@ -19,26 +19,38 @@ def convert_extensions(regex):
                 OrGroup = True
             elif c == '\\':
                 if i + 1 < len(regex):
+                    new_regex.append('(')
                     new_regex.append(c)
                     new_regex.append(regex[i + 1])
+                    new_regex.append(')')
                     i += 1
             elif c == '+':
                 if new_regex[-1] in '])}':
                     start = len(new_regex) - 1
-                    while new_regex[start] not in '[({':
+                    count = 0
+                    while start >= 0:
+                        if new_regex[start] in ')]}':
+                            count += 1
+                        elif new_regex[start] in '([{':
+                            count -= 1
+                        if count == 0:
+                            break
                         start -= 1
+                    
                     group = ''.join(new_regex[start:])
                     new_regex = new_regex[:start]
                     new_regex.append(group)
                     new_regex.append(group + '*')
-                else:
-                    prev_char = new_regex.pop()
-                    new_regex.append(prev_char)
-                    new_regex.append(prev_char + '*')
+                    
             elif c == '?':
                 if new_regex:
                     prev_char = new_regex.pop()
-                    if prev_char == ')':
+
+                    if prev_char == ')' and new_regex[-2] == '\\':
+                        expr = '\\' + new_regex.pop() + prev_char
+                        new_regex.pop()
+                        new_regex.append('(' + expr + '|ε)')
+                    elif prev_char == ')' and new_regex[-1] != '\\':
                         expr = [prev_char]
                         while new_regex and new_regex[-1] != '(':
                             expr.append(new_regex.pop())
@@ -53,18 +65,9 @@ def convert_extensions(regex):
 
         i += 1
 
-    i = 0
-    while i < len(new_regex) - 1:
-        if new_regex[i] in '({[' and new_regex[i + 1] in ')}]' and new_regex[i - 1] != '\\':
-            new_regex.pop(i)
-            new_regex.pop(i)
-        else:
-            i += 1
-
     formated_regex = ''.join(new_regex)
     concatenated = concatenate(formated_regex)
     return ''.join(concatenated)
-
 
 def concatenate(regex):
     new_regex = []
@@ -74,11 +77,18 @@ def concatenate(regex):
     while i < len(regex):
         c = regex[i]
         if c == '\\' and i > 0:
-            new_regex.append('•')
-            new_regex.append(c)
-            new_regex.append(regex[i + 1])
-            conc = True
-            i += 1
+            if conc:
+                new_regex.append('•')
+                new_regex.append(c)
+                new_regex.append(regex[i + 1])
+                conc = True
+                i += 1
+            else:
+                new_regex.append(c)
+                new_regex.append(regex[i + 1])
+                conc = True
+                i += 1
+            
         elif c in '({[':
             if conc:
                 new_regex.append('•')
@@ -95,7 +105,7 @@ def concatenate(regex):
         elif c == '*':
             new_regex.append(c)
             conc = True
-        elif c.isalnum() or c in 'ε.@':
+        else:
             if conc:
                 new_regex.append('•')
                 new_regex.append(c)

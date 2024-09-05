@@ -30,7 +30,7 @@ def process_file(filename, test_string):
         postfix = infix_to_postfix(line)
         print(f'Expresion postfix: {postfix}')
         arbol = postfix_to_tree(postfix)
-        #arbol.draw()
+        arbol.draw()
         
         # Construir el AFN usando Thompson
         nfa = ThompsonNFA()
@@ -68,4 +68,4 @@ def process_file(filename, test_string):
         
         print(f"La cadena '{test_string}' {'SI' if nfa_result else 'NO'} es aceptada por el AFN {idx + 1}")
         print(f"La cadena '{test_string}' {'SI' if afd_result else 'NO'} es aceptada por el AFD {idx + 1}")
-        print(f"La cadena '{test_string}' {'SI' if afd_result else 'NO'} es aceptada por el AFD Minimizado {idx + 1}")
+        print(f"La cadena '{test_string}' {'SI' if afd_min_result else 'NO'} es aceptada por el AFD Minimizado {idx + 1}")
