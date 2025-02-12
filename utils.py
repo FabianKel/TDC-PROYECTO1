@@ -37,7 +37,7 @@ def process_file(filename, test_string):
         start, end = nfa.build_from_tree(arbol)
         nfa.finalize(start, end) 
         afn_path = os.path.join(afn_directory, f'AFN_{i}')
-        nfa.plot(afn_path)  
+        #nfa.plot(afn_path)  
         #nfa.plot(str(i))
         afns.append(nfa) 
 
@@ -47,7 +47,7 @@ def process_file(filename, test_string):
         afds.append(afd)  # Agregar el AFD a la lista
         afd.print_afd()
         afd_path = os.path.join(afd_directory, f'AFD_{i}')
-        afd.plot_afd(afd_path)
+        #afd.plot_afd(afd_path)
         #afd.plot_afd(f'AFD{i}')
 
         # Minimizar el AFD 
@@ -55,16 +55,18 @@ def process_file(filename, test_string):
         minimizer.minimize()
         minimized_afds.append(minimizer)
         minimized_afd_path = os.path.join(afd_directory, f'AFD_minimizado_{i}')
-        minimizer.plot_minimized_afd(minimized_afd_path)
+        #minimizer.plot_minimized_afd(minimized_afd_path)
 
         print('-' * 50)
         i += 1
 
     # Verificar la cadena de prueba tanto en los AFN como en los AFD
     for idx, (nfa, afd) in enumerate(zip(afns, afds)):
-        nfa_result = nfa.simulate(test_string)
-        afd_result = afd.simulate(test_string)
-        afd_min_result = minimizer.simulate(test_string)
+        newTest_String = test_string.replace('|',r'\|')
+        print(f'exp real: {newTest_String}')
+        nfa_result = nfa.simulate(newTest_String)
+        afd_result = afd.simulate(newTest_String)
+        afd_min_result = minimizer.simulate(newTest_String)
         
         print(f"La cadena '{test_string}' {'SI' if nfa_result else 'NO'} es aceptada por el AFN {idx + 1}")
         print(f"La cadena '{test_string}' {'SI' if afd_result else 'NO'} es aceptada por el AFD {idx + 1}")

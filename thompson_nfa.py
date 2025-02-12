@@ -99,13 +99,42 @@ class ThompsonNFA:
 
         def process_state_set(state_set, input_string):
             current_states = epsilon_closure(state_set)
-            for symbol in input_string:
+            #print(f"Estado inicial: {current_states}")
+            
+            i = 0
+            while i < len(input_string):
+                # Si encontramos una barra invertida, lo tratamos junto con el siguiente carácter
+                if input_string[i] == '\\' and i + 1 < len(input_string):
+                    symbol = input_string[i] + input_string[i + 1]  # Toma '\|' como símbolo completo
+                    i += 2  # Salta dos posiciones
+                else:
+                    symbol = input_string[i]
+                    i += 1  # Avanza una posición
+
                 next_states = set()
+                #print(f"\nProcesando símbolo: {symbol}")
+                
                 for state in current_states:
+                    found_transition = False
+                    
                     for trans_symbol, next_state in self.transitions[state]:
+                        #print(f"Se requiere: '{trans_symbol}', se obtuvo: '{symbol}' en estado {state}")
+                        
                         if trans_symbol == symbol:
+                            found_transition = True
+                            #print(f"Transición aceptada: de {state} a {next_state}")
                             next_states.add(next_state)
+
+                    #if not found_transition:
+                        #print(f"No se encontró una transición válida para el símbolo '{symbol}' en el estado {state}")
+                        
+                if not next_states:
+                    print("No hay más estados a los que transicionar, la cadena no es aceptada.")
+                    return False
+
                 current_states = epsilon_closure(next_states)
+                #print(f"Estados actuales después de procesar '{symbol}': {current_states}")
+
             return self.accept_node in current_states
 
         start_states = epsilon_closure({self.start_node})

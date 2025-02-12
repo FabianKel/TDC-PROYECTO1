@@ -88,21 +88,48 @@ class AFNtoAFD:
 
 
     def simulate(self, input_string):
+        # Encontrar el estado inicial
         current_state = None
-
         for closure, state_name in self.afd_states.items():
             if self.nfa.start_node in closure:
                 current_state = state_name
                 break
 
-        for symbol in input_string:
-            if symbol in self.afd_transitions[current_state]:
-                current_state = self.afd_transitions[current_state][symbol]
-            else:
-                return False
+        if current_state is None:
+            raise ValueError("No se encontró el estado inicial en el AFD.")
 
+        print(f"Estado inicial: {current_state}")
+        
+        i = 0
+        while i < len(input_string):
+            # Procesar símbolos, incluyendo los escapados
+            if input_string[i] == '\\' and i + 1 < len(input_string):
+                symbol = input_string[i] + input_string[i + 1]  # Toma '\|' como un solo símbolo
+                i += 2  # Salta dos posiciones
+            else:
+                symbol = input_string[i]
+                i += 1  # Avanza una posición
+
+            print(f"Símbolo procesado: {symbol}, Estado actual: {current_state}")
+            
+            # Buscar la transición para el símbolo actual
+            if symbol in self.afd_transitions[current_state]:
+                next_state = self.afd_transitions[current_state][symbol]
+                print(f"Transición encontrada: {current_state} --{symbol}--> {next_state}")
+                current_state = next_state
+            else:
+                print(f"No se encontró transición para el símbolo '{symbol}' desde el estado {current_state}.")
+                return False  # Si no hay transición, la cadena no es aceptada
+
+        # Verificar si el estado final es de aceptación
         for closure, state_name in self.afd_states.items():
-            if state_name == current_state and self.is_accepting(closure):
-                return True
+            if state_name == current_state:
+                if self.is_accepting(closure):
+                    print(f"La cadena es aceptada. Estado final: {current_state}")
+                    return True
+                else:
+                    print(f"La cadena no es aceptada. Estado final: {current_state}")
+                    return False
 
         return False
+

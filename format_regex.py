@@ -6,22 +6,42 @@ def convert_extensions(regex):
 
     while i < len(regex):
         c = regex[i]
+        nextC = regex[i+1] if i+1 < len(regex) else None
+
 
         if OrGroup:
             if c == ']':
-                new_regex.append('(' + '|'.join(temp_group) + ')')
+                p = 0
+                temp_result = []
+                while p < len(temp_group):
+                    if temp_group[p] == '-' and p != 0 and p != len(temp_group) - 1:
+                        start, end = temp_group[p-1], temp_group[p+1]
+                        # Si es un rango de letras
+                        if start.isalpha() and end.isalpha():
+                            temp_result.extend(chr(j) for j in range(ord(start), ord(end) + 1))
+                        # Si es un rango de números
+                        elif start.isdigit() and end.isdigit():
+                            temp_result.extend(str(j) for j in range(int(start), int(end) + 1))
+                        p += 2  # Saltamos los siguientes 2 caracteres ya que forman el rango
+                    else:
+                        temp_result.append(temp_group[p])
+                    p += 1
+
+                # Agregar el resultado con OR
+                new_regex.append('(' + '|'.join(temp_result) +')')
+
                 OrGroup = False
                 temp_group = []
             else:
                 temp_group.append(c)
+            
         else:
             if c == '[':
                 OrGroup = True
             elif c == '\\':
-                if i + 1 < len(regex):
+                if i + 1 < len(regex):            
                     new_regex.append('(')
-                    new_regex.append(c)
-                    new_regex.append(regex[i + 1])
+                    new_regex.append('\\' + regex[i+1])
                     new_regex.append(')')
                     i += 1
             elif c == '+':
